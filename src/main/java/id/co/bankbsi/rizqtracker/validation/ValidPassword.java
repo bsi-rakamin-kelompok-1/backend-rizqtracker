@@ -5,7 +5,7 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = PasswordConstraintValidator.class)
+@Constraint(validatedBy = PasswordValidator.class)
 @Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
