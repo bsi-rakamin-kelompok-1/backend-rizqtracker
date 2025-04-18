@@ -1,4 +1,10 @@
 package id.co.bankbsi.rizqtracker.dto.response;
 
-public class LoginResponse {
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class LoginResponse extends BaseResponse {
+    private String token;
 }
