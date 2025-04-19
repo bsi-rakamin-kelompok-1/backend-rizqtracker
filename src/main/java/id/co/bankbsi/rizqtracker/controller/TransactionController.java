@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/transactions")
 public class TransactionController {
@@ -25,9 +27,15 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<BaseResponse> getAllTransactions() {
+    public ResponseEntity<TransactionResponse> getAllTransactions() {
+        List<Transaction> transactions = this.transactionService
+                .getAllTransactionsByUserId(this.securityUtil.getCurrentUserId());
 
-        return ResponseEntity.ok(new BaseResponse(true, "userId: " + securityUtil.getCurrentUserId()));
+        TransactionResponse response = new TransactionResponse();
+        response.setSuccess(true);
+        response.setMessage("Transactions retrieved successfully");
+        response.setData(transactions);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/transfer")

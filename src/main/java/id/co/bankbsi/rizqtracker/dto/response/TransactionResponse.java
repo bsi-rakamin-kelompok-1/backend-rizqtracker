@@ -14,19 +14,21 @@ public class TransactionResponse extends BaseResponse {
     private Object data;
 
     public void setData(Transaction transaction) {
-        this.data = mapToTransactionData(transaction);
+        this.data = from(transaction);
     }
 
     public void setData(List<Transaction> transactions) {
         this.data = transactions.stream()
-                .map(TransactionResponse::mapToTransactionData)
+                .map(TransactionResponse::from)
                 .collect(Collectors.toList());
     }
 
     @Data
     public static class TransactionData {
         private String id;
+        private String senderFullName;
         private Long senderAccountNumber;
+        private String recipientFullName;
         private Long recipientAccountNumber;
         private String transactionType;
         private String transferCategory;
@@ -37,13 +39,15 @@ public class TransactionResponse extends BaseResponse {
         private LocalDateTime createdAt;
     }
 
-    private static TransactionData mapToTransactionData(Transaction transaction) {
+    private static TransactionData from(Transaction transaction) {
         TransactionData data = new TransactionData();
         data.setId(transaction.getId());
         data.setTransactionType(transaction.getTransactionType().getName());
+        data.setSenderFullName(transaction.getSenderAccount().getUser().getFullName());
         data.setSenderAccountNumber(transaction.getSenderAccount().getAccountNumber());
 
         if (transaction.getRecipientAccount() != null) {
+            data.setRecipientFullName(transaction.getRecipientAccount().getUser().getFullName());
             data.setRecipientAccountNumber(transaction.getRecipientAccount().getAccountNumber());
         }
 
