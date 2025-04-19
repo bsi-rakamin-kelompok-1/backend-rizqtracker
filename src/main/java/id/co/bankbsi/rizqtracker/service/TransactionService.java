@@ -1,6 +1,7 @@
 package id.co.bankbsi.rizqtracker.service;
 
-import id.co.bankbsi.rizqtracker.dto.request.TransactionRequest;
+import id.co.bankbsi.rizqtracker.dto.request.TopupRequest;
+import id.co.bankbsi.rizqtracker.dto.request.TransferRequest;
 import id.co.bankbsi.rizqtracker.exception.InsufficientBalanceException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.model.*;
@@ -11,9 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TransactionService {
+    private static final String TRANSFER = "transfer";
+    private static final String TOPUP = "topup";
+
     @Autowired
     private TransactionRepository transactionRepository;
 
@@ -30,28 +35,11 @@ public class TransactionService {
     private TopupMethodRepository topupMethodRepository;
 
     @Transactional
-    public Transaction createTransaction(String type, TransactionRequest req) {
-        // Check transaction type in parameter ?type=transfer/topup
-        if (type == null || this.transactionTypeRepository.findByName(type).isEmpty()) {
-            throw new IllegalArgumentException("Transaction type must be either 'transfer' or 'topup'");
-        }
-
-        // Process in separate function
-        Transaction newTransaction;
-        if (type.equals("transfer")) {
-            newTransaction = createTransfer(req);
-        } else {
-            newTransaction = createTopup(req);
-        }
-
-        return this.transactionRepository.save(newTransaction);
-    }
-
-    private Transaction createTransfer(TransactionRequest req) {
-        TransactionType type = this.transactionTypeRepository.findByName("transfer")
+    public Transaction createTransfer(TransferRequest req, Integer userId) {
+        TransactionType type = this.transactionTypeRepository.findByName(TRANSFER)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction type not found"));
 
-        Account sender = this.accountRepository.findByAccountNumber(req.getSenderAccountNumber())
+        Account sender = this.accountRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sender account not found"));
 
         Account recipient = this.accountRepository.findByAccountNumber(req.getRecipientAccountNumber())
@@ -59,6 +47,10 @@ public class TransactionService {
 
         TransferCategory category = this.transferCategoryRepository.findByName(req.getTransferCategory())
                 .orElseThrow(() -> new ResourceNotFoundException("Transfer category not found"));
+
+        if (Objects.equals(sender.getAccountNumber(), recipient.getAccountNumber())) {
+            throw new IllegalArgumentException("Sender and recipient accounts cannot be the same");
+        }
 
         if (sender.getBalance() < req.getAmount()) {
             throw new InsufficientBalanceException("Insufficient balance for transfer");
@@ -79,14 +71,21 @@ public class TransactionService {
         sender.setBalance(sender.getBalance() - req.getAmount());
         recipient.setBalance(recipient.getBalance() + req.getAmount());
 
-        return transaction;
+        // Save transaction first
+        Transaction savedTransaction = this.transactionRepository.save(transaction);
+
+        // Save updated account balances
+        this.accountRepository.saveAll(List.of(sender, recipient));
+
+        return savedTransaction;
     }
 
-    private Transaction createTopup(TransactionRequest req) {
-        TransactionType type = this.transactionTypeRepository.findByName("topup")
+    @Transactional
+    public Transaction createTopup(TopupRequest req, Integer userId) {
+        TransactionType type = this.transactionTypeRepository.findByName(TOPUP)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction type not found"));
 
-        Account sender = this.accountRepository.findByAccountNumber(req.getSenderAccountNumber())
+        Account sender = this.accountRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sender account not found"));
 
         TopupMethod method = this.topupMethodRepository.findByName(req.getTopupMethod())
@@ -99,13 +98,18 @@ public class TransactionService {
         transaction.setSenderAccount(sender);
         transaction.setTopupMethod(method);
         transaction.setAmount(req.getAmount());
-        transaction.setNotes(req.getNotes());
         transaction.setReferenceNumber(referenceNumber);
 
         // Update balance
         sender.setBalance(sender.getBalance() + req.getAmount());
 
-        return transaction;
+        // Save transaction first
+        Transaction savedTransaction = this.transactionRepository.save(transaction);
+
+        // Save account after
+        this.accountRepository.save(sender);
+
+        return savedTransaction;
     }
 
     public List<Transaction> getTransactionsByUserId(Long userId) {
