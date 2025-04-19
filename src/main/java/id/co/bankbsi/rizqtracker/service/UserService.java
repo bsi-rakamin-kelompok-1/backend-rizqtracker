@@ -3,6 +3,7 @@ package id.co.bankbsi.rizqtracker.service;
 import id.co.bankbsi.rizqtracker.dto.request.LoginRequest;
 import id.co.bankbsi.rizqtracker.dto.request.RegisterRequest;
 import id.co.bankbsi.rizqtracker.dto.response.RegisterResponse;
+import id.co.bankbsi.rizqtracker.dto.response.UserRegistrationResult;
 import id.co.bankbsi.rizqtracker.exception.PasswordMismatchException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.exception.UserAlreadyExistsException;
@@ -44,7 +45,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User register(RegisterRequest req) {
+    public UserRegistrationResult register(RegisterRequest req) {
         if (!Objects.equals(req.getPassword(), req.getConfirmPassword())) {
             throw new PasswordMismatchException("Password and confirm password do not match");
         }
@@ -68,9 +69,9 @@ public class UserService {
         Account newAccount = new Account();
         newAccount.setUser(savedUser);
 
-        this.accountRepository.save(newAccount);
+        Account savedAccount = this.accountRepository.save(newAccount);
 
-        return savedUser;
+        return UserRegistrationResult.from(savedUser, savedAccount);
     }
 
     public String login(LoginRequest req) {
