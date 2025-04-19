@@ -34,6 +34,10 @@ public class TransactionService {
     @Autowired
     private TopupMethodRepository topupMethodRepository;
 
+    public List<Transaction> getAllTransactionsByUserId(Integer userId) {
+        return this.transactionRepository.findAllBySenderAccount_User_Id(userId);
+    }
+
     @Transactional
     public Transaction createTransfer(TransferRequest req, Integer userId) {
         TransactionType type = this.transactionTypeRepository.findByName(TRANSFER)
@@ -112,7 +116,4 @@ public class TransactionService {
         return savedTransaction;
     }
 
-    public List<Transaction> getTransactionsByUserId(Long userId) {
-        return this.transactionRepository.findAllBySenderAccount_User_Id(userId);
-    }
 }
