@@ -7,9 +7,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
-public class SecurityUtil {
+public class SecurityUtility {
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtUtility jwtUtility;
 
     public Integer getCurrentUserId() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -17,7 +17,7 @@ public class SecurityUtil {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            return this.jwtUtil.extractUserId(token);
+            return this.jwtUtility.extractUserId(token);
         }
 
         return null;

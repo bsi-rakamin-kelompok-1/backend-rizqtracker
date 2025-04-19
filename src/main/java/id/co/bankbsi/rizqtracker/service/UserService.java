@@ -2,7 +2,6 @@ package id.co.bankbsi.rizqtracker.service;
 
 import id.co.bankbsi.rizqtracker.dto.request.LoginRequest;
 import id.co.bankbsi.rizqtracker.dto.request.RegisterRequest;
-import id.co.bankbsi.rizqtracker.dto.response.RegisterResponse;
 import id.co.bankbsi.rizqtracker.dto.response.UserRegistrationResult;
 import id.co.bankbsi.rizqtracker.exception.PasswordMismatchException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
@@ -11,7 +10,7 @@ import id.co.bankbsi.rizqtracker.model.Account;
 import id.co.bankbsi.rizqtracker.model.User;
 import id.co.bankbsi.rizqtracker.repository.AccountRepository;
 import id.co.bankbsi.rizqtracker.repository.UserRepository;
-import id.co.bankbsi.rizqtracker.util.JwtUtil;
+import id.co.bankbsi.rizqtracker.util.JwtUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -39,7 +37,7 @@ public class UserService {
     private UserDetailsService userDetailsService;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtUtility jwtUtility;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -83,6 +81,6 @@ public class UserService {
         User user = this.userRepository.findUserByEmail(req.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email " + req.getEmail()));
 
-        return jwtUtil.generateToken(userDetails, user.getId());
+        return jwtUtility.generateToken(userDetails, user.getId());
     }
 }

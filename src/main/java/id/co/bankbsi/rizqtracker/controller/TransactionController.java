@@ -7,7 +7,7 @@ import id.co.bankbsi.rizqtracker.dto.response.TransactionResponse;
 import id.co.bankbsi.rizqtracker.dto.response.TransferResponse;
 import id.co.bankbsi.rizqtracker.model.Transaction;
 import id.co.bankbsi.rizqtracker.service.TransactionService;
-import id.co.bankbsi.rizqtracker.util.SecurityUtil;
+import id.co.bankbsi.rizqtracker.util.SecurityUtility;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/transactions")
 public class TransactionController {
     @Autowired
-    private SecurityUtil securityUtil;
+    private SecurityUtility securityUtility;
 
     @Autowired
     private TransactionService transactionService;
@@ -40,7 +40,7 @@ public class TransactionController {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         Page<Transaction> transactionsPage = this.transactionService
-                .getAllTransactionsByUserId(this.securityUtil.getCurrentUserId(), pageable);
+                .getAllTransactionsByUserId(this.securityUtility.getCurrentUserId(), pageable);
 
         TransactionResponse response = new TransactionResponse();
         response.setSuccess(true);
@@ -54,7 +54,7 @@ public class TransactionController {
     public ResponseEntity<TransferResponse> createTransfer(
             @Valid @RequestBody TransferRequest req) {
         Transaction newTransfer = this.transactionService
-                .createTransfer(req, this.securityUtil.getCurrentUserId());
+                .createTransfer(req, this.securityUtility.getCurrentUserId());
 
         TransferResponse response = TransferResponse.from(newTransfer);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -64,7 +64,7 @@ public class TransactionController {
     public ResponseEntity<TopupResponse> createTopup(
             @Valid @RequestBody TopupRequest req) {
         Transaction newTopup = this.transactionService
-                .createTopup(req, this.securityUtil.getCurrentUserId());
+                .createTopup(req, this.securityUtility.getCurrentUserId());
 
         TopupResponse response = TopupResponse.from(newTopup);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

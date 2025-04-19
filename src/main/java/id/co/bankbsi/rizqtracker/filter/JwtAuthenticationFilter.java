@@ -1,6 +1,6 @@
 package id.co.bankbsi.rizqtracker.filter;
 
-import id.co.bankbsi.rizqtracker.util.JwtUtil;
+import id.co.bankbsi.rizqtracker.util.JwtUtility;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -21,7 +21,7 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtUtility jwtUtility;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -39,12 +39,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             jwt = authHeader.substring(7);
-            userEmail = jwtUtil.extractUsername(jwt);
+            userEmail = jwtUtility.extractUsername(jwt);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                if (jwtUtil.validateToken(jwt, userDetails)) {
+                if (jwtUtility.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
