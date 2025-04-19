@@ -1,6 +1,8 @@
 spring:
   application:
     name:
+ profiles:
+   active:
   datasource:
     driver-class-name:
     url:
@@ -9,6 +11,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto:
+    defer-datasource-initialization:
+  sql:
+    init:
+      mode:
+  jackson:
+    property-naming-strategy:
 
 app:
   jwt:
