@@ -24,8 +24,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler({ResourceNotFoundException.class})
+    public ResponseEntity<BaseResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        BaseResponse errorResponse = new BaseResponse();
+        errorResponse.setSuccess(false);
+        errorResponse.setMessage(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler({InsufficientBalanceException.class})
+    public ResponseEntity<BaseResponse> handleInsufficientBalanceException(InsufficientBalanceException ex) {
+        BaseResponse errorResponse = new BaseResponse();
+        errorResponse.setSuccess(false);
+        errorResponse.setMessage(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         List<String> errors = new ArrayList<>();
 
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
@@ -50,7 +68,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<BaseResponse> handleUserAlreadyExistsExceptions(UserAlreadyExistsException ex) {
+    public ResponseEntity<BaseResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
         BaseResponse errorResponse = new BaseResponse();
         errorResponse.setSuccess(false);
         errorResponse.setMessage(ex.getMessage());
@@ -59,7 +77,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponse> handleGeneralExceptions(Exception ex) {
+    public ResponseEntity<BaseResponse> handleGeneralException(Exception ex) {
         BaseResponse errorResponse = new BaseResponse();
         errorResponse.setSuccess(false);
         errorResponse.setMessage(ex.getMessage());
