@@ -35,7 +35,7 @@ public class AuthController {
 
         String token = this.userService.login(req);
 
-        loginResponse.setStatus(true);
+        loginResponse.setSuccess(true);
         loginResponse.setMessage("Login success");
         loginResponse.setToken(token);
 

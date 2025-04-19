@@ -23,7 +23,7 @@ public class RegisterResponse extends BaseResponse {
 
     public static RegisterResponse fromUser(User user) {
         RegisterResponse response = new RegisterResponse();
-        response.setStatus(true);
+        response.setSuccess(true);
         response.setMessage("User created successfully");
 
         UserData userData = new UserData();

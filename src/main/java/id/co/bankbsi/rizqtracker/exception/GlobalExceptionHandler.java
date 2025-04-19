@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpMessageNotReadableException.class})
     public ResponseEntity<BaseResponse> handleMissingRequestBody(HttpMessageNotReadableException ex) {
         BaseResponse errorResponse = new BaseResponse();
-        errorResponse.setStatus(false);
+        errorResponse.setSuccess(false);
         errorResponse.setMessage("Request body is required");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         }
 
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setStatus(false);
+        errorResponse.setSuccess(false);
         errorResponse.setMessage("Validation error occurred");
         errorResponse.setErrors(errors);
 
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<BaseResponse> handlePasswordMismatchException(PasswordMismatchException ex) {
         BaseResponse errorResponse = new BaseResponse();
-        errorResponse.setStatus(false);
+        errorResponse.setSuccess(false);
         errorResponse.setMessage(ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<BaseResponse> handleUserAlreadyExistsExceptions(UserAlreadyExistsException ex) {
         BaseResponse errorResponse = new BaseResponse();
-        errorResponse.setStatus(false);
+        errorResponse.setSuccess(false);
         errorResponse.setMessage(ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse> handleGeneralExceptions(Exception ex) {
         BaseResponse errorResponse = new BaseResponse();
-        errorResponse.setStatus(false);
+        errorResponse.setSuccess(false);
         errorResponse.setMessage(ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);

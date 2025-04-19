@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 (request, response, authException) -> {
                                     response.setContentType("application/json");
                                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                    response.getWriter().write("{\"status\":false,\"message\":\"Authentication required\"}");
+                                    response.getWriter().write("{\"success\":false,\"message\":\"Authentication required\"}");
                                 }
                         )
                 )
