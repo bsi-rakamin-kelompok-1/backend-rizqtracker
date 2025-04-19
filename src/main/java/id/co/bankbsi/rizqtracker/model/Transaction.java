@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transaction_histories")
 @Data
-//@NoArgsConstructor
-//@AllArgsConstructor
-//@Builder
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -47,16 +44,13 @@ public class Transaction {
     private String referenceNumber;
 
     @Column(name = "is_deleted")
-//    @Builder.Default
     private Boolean isDeleted = false;
 
     @CreationTimestamp
     @Column(name = "created_at")
-//    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @UpdateTimestamp
     @Column(name = "deleted_at")
-//    @Builder.Default
     private LocalDateTime deletedAt;
 }

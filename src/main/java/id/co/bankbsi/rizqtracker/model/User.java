@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-//@Builder
-//@NoArgsConstructor
-//@AllArgsConstructor
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
         @UniqueConstraint(columnNames = "phone_number")
@@ -41,11 +38,9 @@ public class User {
 
     @CreationTimestamp
     @Column(name = "created_at")
-//    @Builder.Default
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-//    @Builder.Default
     private LocalDateTime updatedAt;
 }

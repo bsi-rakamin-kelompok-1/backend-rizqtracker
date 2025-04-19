@@ -6,8 +6,6 @@ import lombok.*;
 @Entity
 @Table(name = "transaction_types")
 @Data
-//@NoArgsConstructor
-//@AllArgsConstructor
 public class TransactionType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,4 +13,5 @@ public class TransactionType {
 
     @Column(nullable = false, unique = true)
     private String name;
+
 }

@@ -6,8 +6,6 @@ import lombok.*;
 @Entity
 @Table(name = "transfer_categories")
 @Data
-//@NoArgsConstructor
-//@AllArgsConstructor
 public class TransferCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
