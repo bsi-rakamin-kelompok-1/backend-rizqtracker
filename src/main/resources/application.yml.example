@@ -13,6 +13,7 @@ spring:
 app:
   jwt:
     secret:
+    expiration:
 
 server:
   port:
