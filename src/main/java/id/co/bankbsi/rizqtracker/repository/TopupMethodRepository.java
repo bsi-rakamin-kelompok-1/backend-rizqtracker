@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface TopupMethodRepository extends JpaRepository<TopupMethod, Short> {
-    public Optional<TopupMethod> findByName(String name);
+    Optional<TopupMethod> findByName(String name);
 }

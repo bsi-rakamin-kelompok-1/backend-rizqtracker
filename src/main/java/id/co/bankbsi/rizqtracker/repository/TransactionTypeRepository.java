@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface TransactionTypeRepository extends JpaRepository<TransactionType, Short> {
-    public Optional<TransactionType> findByName(String name) throws RuntimeException;
+    Optional<TransactionType> findByName(String name) throws RuntimeException;
 }
