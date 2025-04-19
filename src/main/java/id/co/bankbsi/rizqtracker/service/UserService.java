@@ -4,6 +4,7 @@ import id.co.bankbsi.rizqtracker.dto.request.LoginRequest;
 import id.co.bankbsi.rizqtracker.dto.request.RegisterRequest;
 import id.co.bankbsi.rizqtracker.dto.response.RegisterResponse;
 import id.co.bankbsi.rizqtracker.exception.PasswordMismatchException;
+import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.exception.UserAlreadyExistsException;
 import id.co.bankbsi.rizqtracker.model.Account;
 import id.co.bankbsi.rizqtracker.model.User;
@@ -78,7 +79,9 @@ public class UserService {
         );
 
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(req.getEmail());
+        User user = this.userRepository.findUserByEmail(req.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email " + req.getEmail()));
 
-        return jwtUtil.generateToken(userDetails);
+        return jwtUtil.generateToken(userDetails, user.getId());
     }
 }
