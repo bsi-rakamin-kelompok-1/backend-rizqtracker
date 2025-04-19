@@ -13,9 +13,7 @@ REST API for tracking personal finances built with Spring Boot.
 - Java 21
 - Spring Boot
 - Spring Security
-- JSON Web Tokens (JWT)
 - PostgreSQL
-- Gradle
 - Docker
 - AWS
 
