@@ -8,6 +8,8 @@ import id.co.bankbsi.rizqtracker.model.*;
 import id.co.bankbsi.rizqtracker.repository.*;
 import id.co.bankbsi.rizqtracker.util.ReferenceNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +36,8 @@ public class TransactionService {
     @Autowired
     private TopupMethodRepository topupMethodRepository;
 
-    public List<Transaction> getAllTransactionsByUserId(Integer userId) {
-        return this.transactionRepository.findAllBySenderAccount_User_Id(userId);
+    public Page<Transaction> getAllTransactionsByUserId(Integer userId, Pageable pageable) {
+        return this.transactionRepository.findAllBySenderAccount_User_Id(userId, pageable);
     }
 
     @Transactional

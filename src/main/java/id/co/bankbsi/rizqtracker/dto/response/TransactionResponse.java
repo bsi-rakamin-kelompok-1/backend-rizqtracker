@@ -3,21 +3,24 @@ package id.co.bankbsi.rizqtracker.dto.response;
 import id.co.bankbsi.rizqtracker.model.Transaction;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class TransactionResponse extends BaseResponse {
+    private PageMetaResponse meta;
     private Object data;
 
     public void setData(Transaction transaction) {
         this.data = from(transaction);
     }
 
-    public void setData(List<Transaction> transactions) {
+    public void setData(Page<Transaction> transactions) {
+        this.meta = PageMetaResponse.from(transactions);
+
         this.data = transactions.stream()
                 .map(TransactionResponse::from)
                 .collect(Collectors.toList());
