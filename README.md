@@ -57,7 +57,7 @@ spring:
 ## Security
 
 - JWT-based authentication
-- Password encryption with bcrypt
+- Password hashing with bcrypt
 - Token expiration after 10 minutes
 - Custom error handling for expired/invalid tokens
 
