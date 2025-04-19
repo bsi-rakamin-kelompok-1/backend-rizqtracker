@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransactionController {
     @GetMapping
     public ResponseEntity<BaseResponse> getAllTransactions() {
-        return ResponseEntity.ok(new BaseResponse(true, "List of all transactions"));
+        return ResponseEntity.ok(new BaseResponse(true, "List of all transactions tests"));
     }
 }
