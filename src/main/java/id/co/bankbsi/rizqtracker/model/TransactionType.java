@@ -6,8 +6,8 @@ import lombok.*;
 @Entity
 @Table(name = "transaction_types")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+//@NoArgsConstructor
+//@AllArgsConstructor
 public class TransactionType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

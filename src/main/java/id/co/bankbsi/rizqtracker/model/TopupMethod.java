@@ -6,8 +6,8 @@ import lombok.*;
 @Entity
 @Table(name = "topup_methods")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+//@NoArgsConstructor
+//@AllArgsConstructor
 public class TopupMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

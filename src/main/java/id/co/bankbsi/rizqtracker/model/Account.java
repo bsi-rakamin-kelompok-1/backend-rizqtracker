@@ -6,9 +6,9 @@ import jakarta.persistence.*;
 @Data
 @Entity
 @Table(name = "accounts")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Builder
 public class Account {
     @Id
     @Column(name = "account_number", nullable = false)
@@ -26,6 +26,6 @@ public class Account {
     private User user;
 
     @Column(nullable = false)
-    @Builder.Default
+//    @Builder.Default
     private Long balance = 0L;
 }
