@@ -1,6 +1,9 @@
 -- Clear existing data
 TRUNCATE topup_methods, transfer_categories, transaction_types RESTART IDENTITY CASCADE;
 
+-- Set account balances to zero
+UPDATE accounts SET balance = 0;
+
 -- Insert transaction types
 INSERT INTO transaction_types (id, name) VALUES (1, 'transfer');
 INSERT INTO transaction_types (id, name) VALUES (2, 'topup');
