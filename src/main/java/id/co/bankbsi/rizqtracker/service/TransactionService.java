@@ -3,8 +3,8 @@ package id.co.bankbsi.rizqtracker.service;
 import id.co.bankbsi.rizqtracker.dto.request.TopupRequest;
 import id.co.bankbsi.rizqtracker.dto.request.TransferRequest;
 import id.co.bankbsi.rizqtracker.dto.response.BaseCashflowResponse;
-import id.co.bankbsi.rizqtracker.dto.response.ExpenseCashflowResponse;
-import id.co.bankbsi.rizqtracker.dto.response.IncomeCashflowResponse;
+import id.co.bankbsi.rizqtracker.dto.response.CashflowExpenseResponse;
+import id.co.bankbsi.rizqtracker.dto.response.CashflowIncomeResponse;
 import id.co.bankbsi.rizqtracker.exception.InsufficientBalanceException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.model.*;
@@ -127,13 +127,13 @@ public class TransactionService {
         return savedTransaction;
     }
 
-    public IncomeCashflowResponse getIncomeCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public CashflowIncomeResponse getIncomeCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
         List<Transaction> topupTransactions = findTopupTransactionsByUserIdAndDateRange(TOPUP, userId, startDate, endDate);
 
         List<Transaction> transferTransactions = findTransferTransactionsByUserIdAndDateRange(TRANSFER, userId, startDate, endDate);
 
-        List<IncomeCashflowResponse.TopupData> topupDataList = topupTransactions.stream().map(transaction -> {
-            IncomeCashflowResponse.TopupData topupData = new IncomeCashflowResponse.TopupData();
+        List<CashflowIncomeResponse.TopupData> topupDataList = topupTransactions.stream().map(transaction -> {
+            CashflowIncomeResponse.TopupData topupData = new CashflowIncomeResponse.TopupData();
             topupData.setTransactionId(transaction.getId());
             topupData.setTopupMethod(transaction.getTopupMethod().getName());
             topupData.setAmount(transaction.getAmount());
@@ -142,8 +142,8 @@ public class TransactionService {
             return topupData;
         }).collect(Collectors.toList());
 
-        List<IncomeCashflowResponse.TransferData> transferDataList = transferTransactions.stream().map(transaction -> {
-            IncomeCashflowResponse.TransferData transferData = new IncomeCashflowResponse.TransferData();
+        List<CashflowIncomeResponse.TransferData> transferDataList = transferTransactions.stream().map(transaction -> {
+            CashflowIncomeResponse.TransferData transferData = new CashflowIncomeResponse.TransferData();
             transferData.setTransactionId(transaction.getId());
             transferData.setTransactionCategory(transaction.getTransferCategory().getName());
             transferData.setSenderAccountNumber(transaction.getSenderAccount().getAccountNumber());
@@ -154,11 +154,11 @@ public class TransactionService {
             return transferData;
         }).collect(Collectors.toList());
 
-        IncomeCashflowResponse.IncomeDetails incomeDetails = new IncomeCashflowResponse.IncomeDetails();
+        CashflowIncomeResponse.IncomeDetails incomeDetails = new CashflowIncomeResponse.IncomeDetails();
         incomeDetails.setTopupData(topupDataList);
         incomeDetails.setTransferData(transferDataList);
 
-        IncomeCashflowResponse response = new IncomeCashflowResponse();
+        CashflowIncomeResponse response = new CashflowIncomeResponse();
         response.setSuccess(true);
         response.setMessage("Cashflow income retrieved successfully");
         response.setPeriod(BaseCashflowResponse.Period.from(startDate, endDate));
@@ -167,19 +167,19 @@ public class TransactionService {
         return response;
     }
 
-    public ExpenseCashflowResponse getExpenseCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public CashflowExpenseResponse getExpenseCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
         List<Transaction> transferTransactions = transactionRepository.findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(
                 TRANSFER, userId, startDate, endDate);
 
-        List<ExpenseCashflowResponse.TransferData> needs = new ArrayList<>();
-        List<ExpenseCashflowResponse.TransferData> bills = new ArrayList<>();
-        List<ExpenseCashflowResponse.TransferData> shopping = new ArrayList<>();
-        List<ExpenseCashflowResponse.TransferData> transport = new ArrayList<>();
-        List<ExpenseCashflowResponse.TransferData> transferOfWealth = new ArrayList<>();
+        List<CashflowExpenseResponse.TransferData> needs = new ArrayList<>();
+        List<CashflowExpenseResponse.TransferData> bills = new ArrayList<>();
+        List<CashflowExpenseResponse.TransferData> shopping = new ArrayList<>();
+        List<CashflowExpenseResponse.TransferData> transport = new ArrayList<>();
+        List<CashflowExpenseResponse.TransferData> transferOfWealth = new ArrayList<>();
 
         for (Transaction transaction : transferTransactions) {
             String categoryName = transaction.getTransferCategory().getName().toLowerCase();
-            ExpenseCashflowResponse.TransferData transferData = new ExpenseCashflowResponse.TransferData();
+            CashflowExpenseResponse.TransferData transferData = new CashflowExpenseResponse.TransferData();
             transferData.setTransactionId(transaction.getId());
             transferData.setRecipientAccountNumber(transaction.getRecipientAccount().getAccountNumber());
             transferData.setRecipientFullName(transaction.getRecipientAccount().getUser().getFullName());
@@ -197,14 +197,14 @@ public class TransactionService {
             }
         }
 
-        ExpenseCashflowResponse.ExpenseDetails expenseDetails = new ExpenseCashflowResponse.ExpenseDetails();
+        CashflowExpenseResponse.ExpenseDetails expenseDetails = new CashflowExpenseResponse.ExpenseDetails();
         expenseDetails.setNeeds(needs);
         expenseDetails.setBills(bills);
         expenseDetails.setShopping(shopping);
         expenseDetails.setTransport(transport);
         expenseDetails.setTransferOfWealth(transferOfWealth);
 
-        ExpenseCashflowResponse response = new ExpenseCashflowResponse();
+        CashflowExpenseResponse response = new CashflowExpenseResponse();
         response.setSuccess(true);
         response.setMessage("Cashflow expense retrieved successfully");
         response.setPeriod(BaseCashflowResponse.Period.from(startDate, endDate));

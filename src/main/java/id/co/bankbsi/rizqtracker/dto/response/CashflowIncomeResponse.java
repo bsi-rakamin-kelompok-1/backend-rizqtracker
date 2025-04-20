@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class IncomeCashflowResponse extends BaseCashflowResponse {
+public class CashflowIncomeResponse extends BaseCashflowResponse {
     private IncomeDetails incomeDetails;
 
     @Data
