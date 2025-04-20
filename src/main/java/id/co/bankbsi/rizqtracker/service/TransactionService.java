@@ -2,6 +2,8 @@ package id.co.bankbsi.rizqtracker.service;
 
 import id.co.bankbsi.rizqtracker.dto.request.TopupRequest;
 import id.co.bankbsi.rizqtracker.dto.request.TransferRequest;
+import id.co.bankbsi.rizqtracker.dto.response.BaseCashflowResponse;
+import id.co.bankbsi.rizqtracker.dto.response.IncomeCashflowResponse;
 import id.co.bankbsi.rizqtracker.exception.InsufficientBalanceException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.model.*;
@@ -13,8 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -38,6 +42,14 @@ public class TransactionService {
 
     public Page<Transaction> getAllTransactionsByUserId(Integer userId, Pageable pageable) {
         return this.transactionRepository.findAllBySenderAccount_User_Id(userId, pageable);
+    }
+
+    public List<Transaction> findTopupTransactionsByUserIdAndDateRange(String type, Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+        return this.transactionRepository.findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(type, userId, startDate, endDate);
+    }
+
+    public List<Transaction> findTransferTransactionsByUserIdAndDateRange(String type, Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+        return this.transactionRepository.findByTransactionType_NameAndRecipientAccount_User_IdAndCreatedAtBetween(type, userId, startDate, endDate);
     }
 
     @Transactional
@@ -72,15 +84,12 @@ public class TransactionService {
         transaction.setAmount(req.getAmount());
         transaction.setNotes(req.getNotes());
         transaction.setReferenceNumber(referenceNumber);
-        
-        // Update balance
+
         sender.setBalance(sender.getBalance() - req.getAmount());
         recipient.setBalance(recipient.getBalance() + req.getAmount());
 
-        // Save transaction first
         Transaction savedTransaction = this.transactionRepository.save(transaction);
 
-        // Save updated account balances
         this.accountRepository.saveAll(List.of(sender, recipient));
 
         return savedTransaction;
@@ -104,18 +113,55 @@ public class TransactionService {
         transaction.setSenderAccount(sender);
         transaction.setTopupMethod(method);
         transaction.setAmount(req.getAmount());
+        transaction.setNotes(req.getNotes());
         transaction.setReferenceNumber(referenceNumber);
 
-        // Update balance
         sender.setBalance(sender.getBalance() + req.getAmount());
 
-        // Save transaction first
         Transaction savedTransaction = this.transactionRepository.save(transaction);
 
-        // Save account after
         this.accountRepository.save(sender);
 
         return savedTransaction;
     }
 
+    public IncomeCashflowResponse getIncomeCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Transaction> topupTransactions = findTopupTransactionsByUserIdAndDateRange(TOPUP, userId, startDate, endDate);
+
+        List<Transaction> transferTransactions = findTransferTransactionsByUserIdAndDateRange(TRANSFER, userId, startDate, endDate);
+
+        List<IncomeCashflowResponse.TopupData> topupDataList = topupTransactions.stream().map(transaction -> {
+            IncomeCashflowResponse.TopupData topupData = new IncomeCashflowResponse.TopupData();
+            topupData.setTransactionId(transaction.getId());
+            topupData.setTopupMethod(transaction.getTopupMethod().getName());
+            topupData.setAmount(transaction.getAmount());
+            topupData.setNotes(transaction.getNotes());
+            topupData.setCreatedAt(transaction.getCreatedAt());
+            return topupData;
+        }).collect(Collectors.toList());
+
+        List<IncomeCashflowResponse.TransferData> transferDataList = transferTransactions.stream().map(transaction -> {
+            IncomeCashflowResponse.TransferData transferData = new IncomeCashflowResponse.TransferData();
+            transferData.setTransactionId(transaction.getId());
+            transferData.setTransactionCategory(transaction.getTransferCategory().getName());
+            transferData.setSenderAccountNumber(transaction.getSenderAccount().getAccountNumber());
+            transferData.setSenderFullName(transaction.getSenderAccount().getUser().getFullName());
+            transferData.setAmount(transaction.getAmount());
+            transferData.setNotes(transaction.getNotes());
+            transferData.setCreatedAt(transaction.getCreatedAt());
+            return transferData;
+        }).collect(Collectors.toList());
+
+        IncomeCashflowResponse.IncomeDetails incomeDetails = new IncomeCashflowResponse.IncomeDetails();
+        incomeDetails.setTopupData(topupDataList);
+        incomeDetails.setTransferData(transferDataList);
+
+        IncomeCashflowResponse response = new IncomeCashflowResponse();
+        response.setSuccess(true);
+        response.setMessage("Cashflow income retrieved successfully");
+        response.setPeriod(BaseCashflowResponse.Period.from(startDate, endDate));
+        response.setIncomeDetails(incomeDetails);
+
+        return response;
+    }
 }
