@@ -4,8 +4,7 @@ import id.co.bankbsi.rizqtracker.dto.request.LoginRequest;
 import id.co.bankbsi.rizqtracker.dto.request.RegisterRequest;
 import id.co.bankbsi.rizqtracker.dto.response.LoginResponse;
 import id.co.bankbsi.rizqtracker.dto.response.RegisterResponse;
-import id.co.bankbsi.rizqtracker.dto.response.UserRegistrationResult;
-import id.co.bankbsi.rizqtracker.model.User;
+import id.co.bankbsi.rizqtracker.dto.response.UserRegistrationResponse;
 import id.co.bankbsi.rizqtracker.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest req) {
-        UserRegistrationResult result = this.userService.register(req);
+        UserRegistrationResponse result = this.userService.register(req);
         RegisterResponse registerResponse = RegisterResponse
                 .fromUserAndAccount(result.getUser(), result.getAccount());
 
