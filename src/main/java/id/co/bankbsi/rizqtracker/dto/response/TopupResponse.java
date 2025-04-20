@@ -18,6 +18,7 @@ public class TopupResponse extends BaseResponse {
         private Long senderAccountNumber;
         private String topupMethod;
         private Long amount;
+        private String notes;
         private String referenceNumber;
         private LocalDateTime createdAt;
     }
@@ -31,6 +32,7 @@ public class TopupResponse extends BaseResponse {
         data.setSenderAccountNumber(transaction.getSenderAccount().getAccountNumber());
         data.setTopupMethod(transaction.getTopupMethod().getName());
         data.setAmount(transaction.getAmount());
+        data.setNotes(transaction.getNotes());
         data.setReferenceNumber(transaction.getReferenceNumber());
         data.setCreatedAt(transaction.getCreatedAt());
 
