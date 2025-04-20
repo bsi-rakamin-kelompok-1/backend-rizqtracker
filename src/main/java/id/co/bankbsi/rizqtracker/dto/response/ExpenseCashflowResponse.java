@@ -23,9 +23,9 @@ public class ExpenseCashflowResponse extends BaseCashflowResponse {
     @Data
     public static class TransferData {
         private String transactionId;
-        private Integer recipientAccountNumber;
         private String recipientFullName;
-        private Double amount;
+        private Long recipientAccountNumber;
+        private Long amount;
         private String notes;
         private LocalDateTime createdAt;
     }

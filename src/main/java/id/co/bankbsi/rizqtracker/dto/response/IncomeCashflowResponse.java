@@ -30,8 +30,8 @@ public class IncomeCashflowResponse extends BaseCashflowResponse {
     public static class TransferData {
         private String transactionId;
         private String transactionCategory;
-        private Long senderAccountNumber;
         private String senderFullName;
+        private Long senderAccountNumber;
         private Long amount;
         private String notes;
         private LocalDateTime createdAt;
