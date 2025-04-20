@@ -1,7 +1,8 @@
 package id.co.bankbsi.rizqtracker.controller;
 
-import id.co.bankbsi.rizqtracker.dto.response.ExpenseCashflowResponse;
-import id.co.bankbsi.rizqtracker.dto.response.IncomeCashflowResponse;
+import id.co.bankbsi.rizqtracker.dto.response.CashflowExpenseResponse;
+import id.co.bankbsi.rizqtracker.dto.response.CashflowIncomeResponse;
+import id.co.bankbsi.rizqtracker.dto.response.CashflowSummaryResponse;
 import id.co.bankbsi.rizqtracker.service.TransactionService;
 import id.co.bankbsi.rizqtracker.util.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,25 +24,36 @@ public class CashflowController {
     @Autowired
     private TransactionService transactionService;
 
-    @GetMapping("/income")
-    public ResponseEntity<IncomeCashflowResponse> getIncomeCashflow(
+    @GetMapping
+    public ResponseEntity<CashflowSummaryResponse> getCashflowSummary(
             @RequestParam(defaultValue = "week") String period) {
         LocalDateTime end = LocalDateTime.now();
         LocalDateTime start = calculateStartDate(period, end);
         Integer userId = this.securityUtility.getCurrentUserId();
 
-        IncomeCashflowResponse response = this.transactionService.getIncomeCashflow(userId, start, end);
+        CashflowSummaryResponse response = this.transactionService.getCashflowSummary(userId, start, end);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/income")
+    public ResponseEntity<CashflowIncomeResponse> getIncomeCashflow(
+            @RequestParam(defaultValue = "week") String period) {
+        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start = calculateStartDate(period, end);
+        Integer userId = this.securityUtility.getCurrentUserId();
+
+        CashflowIncomeResponse response = this.transactionService.getIncomeCashflow(userId, start, end);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/expense")
-    public ResponseEntity<ExpenseCashflowResponse> getExpenseCashflow(
+    public ResponseEntity<CashflowExpenseResponse> getExpenseCashflow(
             @RequestParam(defaultValue = "week") String period) {
         LocalDateTime end = LocalDateTime.now();
         LocalDateTime start = calculateStartDate(period, end);
         Integer userId = this.securityUtility.getCurrentUserId();
 
-        ExpenseCashflowResponse response = this.transactionService.getExpenseCashflow(userId, start, end);
+        CashflowExpenseResponse response = this.transactionService.getExpenseCashflow(userId, start, end);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

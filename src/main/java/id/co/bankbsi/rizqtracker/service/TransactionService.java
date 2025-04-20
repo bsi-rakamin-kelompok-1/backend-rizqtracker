@@ -5,6 +5,7 @@ import id.co.bankbsi.rizqtracker.dto.request.TransferRequest;
 import id.co.bankbsi.rizqtracker.dto.response.BaseCashflowResponse;
 import id.co.bankbsi.rizqtracker.dto.response.CashflowExpenseResponse;
 import id.co.bankbsi.rizqtracker.dto.response.CashflowIncomeResponse;
+import id.co.bankbsi.rizqtracker.dto.response.CashflowSummaryResponse;
 import id.co.bankbsi.rizqtracker.exception.InsufficientBalanceException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.model.*;
@@ -53,6 +54,11 @@ public class TransactionService {
     public List<Transaction> findTransferTransactionsByUserIdAndDateRange(String type, Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
         return this.transactionRepository.findByTransactionType_NameAndRecipientAccount_User_IdAndCreatedAtBetween(type, userId, startDate, endDate);
     }
+
+//    public List<Transaction> findTransferTransactionsByUserIdAndDateRange(String type, Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+//        return this.transactionRepository.findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(
+//                TRANSFER, userId, startDate, endDate);
+//    }
 
     @Transactional
     public Transaction createTransfer(TransferRequest req, Integer userId) {
@@ -193,7 +199,8 @@ public class TransactionService {
                 case "shopping" -> shopping.add(transferData);
                 case "transport" -> transport.add(transferData);
                 case "transfer_of_wealth" -> transferOfWealth.add(transferData);
-                default -> {}
+                default -> {
+                }
             }
         }
 
@@ -211,5 +218,59 @@ public class TransactionService {
         response.setExpenseDetails(expenseDetails);
 
         return response;
+    }
+
+    public CashflowSummaryResponse getCashflowSummary(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Transaction> topupTransactions = findTopupTransactionsByUserIdAndDateRange(TOPUP, userId, startDate, endDate);
+        List<Transaction> incomeTransferTransactions = findTransferTransactionsByUserIdAndDateRange(TRANSFER, userId, startDate, endDate);
+
+        List<Transaction> expenseTransferTransactions = findTopupTransactionsByUserIdAndDateRange(TRANSFER, userId, startDate, endDate);
+
+
+        long totalTopup = topupTransactions.stream()
+                .mapToLong(Transaction::getAmount)
+                .sum();
+
+        long totalIncomeTransfer = incomeTransferTransactions.stream()
+                .mapToLong(Transaction::getAmount)
+                .sum();
+
+        long totalNeeds = calculateCategoryTotal(expenseTransferTransactions, "needs");
+        long totalBills = calculateCategoryTotal(expenseTransferTransactions, "bills");
+        long totalShopping = calculateCategoryTotal(expenseTransferTransactions, "shopping");
+        long totalTransport = calculateCategoryTotal(expenseTransferTransactions, "transport");
+        long totalTransferOfWealth = calculateCategoryTotal(expenseTransferTransactions, "transfer_of_wealth");
+
+        CashflowSummaryResponse response = new CashflowSummaryResponse();
+        response.setSuccess(true);
+        response.setMessage("Cashflow summary retrieved successfully");
+        response.setPeriod(BaseCashflowResponse.Period.from(startDate, endDate));
+
+        CashflowSummaryResponse.Summary summary = new CashflowSummaryResponse.Summary();
+
+        CashflowSummaryResponse.Income income = new CashflowSummaryResponse.Income();
+        income.setTotalTopup(totalTopup);
+        income.setTotalTransfer(totalIncomeTransfer);
+
+        CashflowSummaryResponse.Expense expense = new CashflowSummaryResponse.Expense();
+        expense.setTotalNeeds(totalNeeds);
+        expense.setTotalBills(totalBills);
+        expense.setTotalShopping(totalShopping);
+        expense.setTotalTransport(totalTransport);
+        expense.setTotalTransferOfWealth(totalTransferOfWealth);
+
+        summary.setIncome(income);
+        summary.setExpense(expense);
+        response.setSummary(summary);
+
+        return response;
+    }
+
+    private long calculateCategoryTotal(List<Transaction> transactions, String categoryName) {
+        return transactions.stream()
+                .filter(transaction -> transaction.getTransferCategory() != null &&
+                        transaction.getTransferCategory().getName().toLowerCase().equals(categoryName))
+                .mapToLong(Transaction::getAmount)
+                .sum();
     }
 }
