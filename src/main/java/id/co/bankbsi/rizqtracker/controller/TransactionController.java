@@ -29,7 +29,7 @@ public class TransactionController {
 
     @GetMapping
     public ResponseEntity<TransactionResponse> getAllTransactions(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sort_by,
             @RequestParam(defaultValue = "desc") String sort_type
