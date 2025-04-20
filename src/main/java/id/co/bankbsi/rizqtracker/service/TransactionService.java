@@ -3,6 +3,7 @@ package id.co.bankbsi.rizqtracker.service;
 import id.co.bankbsi.rizqtracker.dto.request.TopupRequest;
 import id.co.bankbsi.rizqtracker.dto.request.TransferRequest;
 import id.co.bankbsi.rizqtracker.dto.response.BaseCashflowResponse;
+import id.co.bankbsi.rizqtracker.dto.response.ExpenseCashflowResponse;
 import id.co.bankbsi.rizqtracker.dto.response.IncomeCashflowResponse;
 import id.co.bankbsi.rizqtracker.exception.InsufficientBalanceException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -161,6 +163,52 @@ public class TransactionService {
         response.setMessage("Cashflow income retrieved successfully");
         response.setPeriod(BaseCashflowResponse.Period.from(startDate, endDate));
         response.setIncomeDetails(incomeDetails);
+
+        return response;
+    }
+
+    public ExpenseCashflowResponse getExpenseCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Transaction> transferTransactions = transactionRepository.findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(
+                TRANSFER, userId, startDate, endDate);
+
+        List<ExpenseCashflowResponse.TransferData> needs = new ArrayList<>();
+        List<ExpenseCashflowResponse.TransferData> bills = new ArrayList<>();
+        List<ExpenseCashflowResponse.TransferData> shopping = new ArrayList<>();
+        List<ExpenseCashflowResponse.TransferData> transport = new ArrayList<>();
+        List<ExpenseCashflowResponse.TransferData> transferOfWealth = new ArrayList<>();
+
+        for (Transaction transaction : transferTransactions) {
+            String categoryName = transaction.getTransferCategory().getName().toLowerCase();
+            ExpenseCashflowResponse.TransferData transferData = new ExpenseCashflowResponse.TransferData();
+            transferData.setTransactionId(transaction.getId());
+            transferData.setRecipientAccountNumber(transaction.getRecipientAccount().getAccountNumber());
+            transferData.setRecipientFullName(transaction.getRecipientAccount().getUser().getFullName());
+            transferData.setAmount(transaction.getAmount());
+            transferData.setNotes(transaction.getNotes());
+            transferData.setCreatedAt(transaction.getCreatedAt());
+
+            switch (categoryName) {
+                case "needs" -> needs.add(transferData);
+                case "bills" -> bills.add(transferData);
+                case "shopping" -> shopping.add(transferData);
+                case "transport" -> transport.add(transferData);
+                case "transfer_of_wealth" -> transferOfWealth.add(transferData);
+                default -> {}
+            }
+        }
+
+        ExpenseCashflowResponse.ExpenseDetails expenseDetails = new ExpenseCashflowResponse.ExpenseDetails();
+        expenseDetails.setNeeds(needs);
+        expenseDetails.setBills(bills);
+        expenseDetails.setShopping(shopping);
+        expenseDetails.setTransport(transport);
+        expenseDetails.setTransferOfWealth(transferOfWealth);
+
+        ExpenseCashflowResponse response = new ExpenseCashflowResponse();
+        response.setSuccess(true);
+        response.setMessage("Cashflow expense retrieved successfully");
+        response.setPeriod(BaseCashflowResponse.Period.from(startDate, endDate));
+        response.setExpenseDetails(expenseDetails);
 
         return response;
     }

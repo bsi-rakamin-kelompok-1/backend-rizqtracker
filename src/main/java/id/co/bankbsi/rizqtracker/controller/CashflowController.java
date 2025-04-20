@@ -1,5 +1,6 @@
 package id.co.bankbsi.rizqtracker.controller;
 
+import id.co.bankbsi.rizqtracker.dto.response.ExpenseCashflowResponse;
 import id.co.bankbsi.rizqtracker.dto.response.IncomeCashflowResponse;
 import id.co.bankbsi.rizqtracker.service.TransactionService;
 import id.co.bankbsi.rizqtracker.util.SecurityUtility;
@@ -25,22 +26,32 @@ public class CashflowController {
     @GetMapping("/income")
     public ResponseEntity<IncomeCashflowResponse> getIncomeCashflow(
             @RequestParam(defaultValue = "week") String period) {
-
-        LocalDateTime start;
         LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start = calculateStartDate(period, end);
+        Integer userId = this.securityUtility.getCurrentUserId();
 
-        start = switch (period.toLowerCase()) {
+        IncomeCashflowResponse response = this.transactionService.getIncomeCashflow(userId, start, end);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/expense")
+    public ResponseEntity<ExpenseCashflowResponse> getExpenseCashflow(
+            @RequestParam(defaultValue = "week") String period) {
+        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start = calculateStartDate(period, end);
+        Integer userId = this.securityUtility.getCurrentUserId();
+
+        ExpenseCashflowResponse response = this.transactionService.getExpenseCashflow(userId, start, end);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    private LocalDateTime calculateStartDate(String period, LocalDateTime end) {
+        return switch (period.toLowerCase()) {
             case "week" -> end.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY))
                     .withHour(0).withMinute(0).withSecond(0);
             case "month" -> end.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
             case "three_months" -> end.minusMonths(3).withHour(0).withMinute(0).withSecond(0);
             default -> end.minusDays(7).withHour(0).withMinute(0).withSecond(0);
         };
-
-        Integer userId = this.securityUtility.getCurrentUserId();
-
-        IncomeCashflowResponse response = this.transactionService.getIncomeCashflow(userId, start, end);
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
