@@ -4,7 +4,6 @@ import id.co.bankbsi.rizqtracker.dto.response.IncomeCashflowResponse;
 import id.co.bankbsi.rizqtracker.service.TransactionService;
 import id.co.bankbsi.rizqtracker.util.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/cashflow")
@@ -28,16 +24,18 @@ public class CashflowController {
 
     @GetMapping("/income")
     public ResponseEntity<IncomeCashflowResponse> getIncomeCashflow(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam(defaultValue = "week") String period) {
 
-        LocalDateTime start = Optional.ofNullable(startDate)
-                .map(date -> LocalDateTime.of(date, LocalTime.MIN))
-                .orElse(LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(7));
+        LocalDateTime start;
+        LocalDateTime end = LocalDateTime.now();
 
-        LocalDateTime end = Optional.ofNullable(endDate)
-                .map(date -> LocalDateTime.of(date, LocalTime.MAX))
-                .orElse(LocalDateTime.now());
+        start = switch (period.toLowerCase()) {
+            case "week" -> end.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY))
+                    .withHour(0).withMinute(0).withSecond(0);
+            case "month" -> end.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+            case "three_months" -> end.minusMonths(3).withHour(0).withMinute(0).withSecond(0);
+            default -> end.minusDays(7).withHour(0).withMinute(0).withSecond(0);
+        };
 
         Integer userId = this.securityUtility.getCurrentUserId();
 
