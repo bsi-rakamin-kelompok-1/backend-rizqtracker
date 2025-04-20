@@ -5,12 +5,12 @@ import id.co.bankbsi.rizqtracker.model.User;
 import lombok.Data;
 
 @Data
-public class UserRegistrationResult {
+public class UserRegistrationResponse {
     private User user;
     private Account account;
 
-    public static UserRegistrationResult from(User user, Account account) {
-        UserRegistrationResult result = new UserRegistrationResult();
+    public static UserRegistrationResponse from(User user, Account account) {
+        UserRegistrationResponse result = new UserRegistrationResponse();
         result.setUser(user);
         result.setAccount(account);
 
