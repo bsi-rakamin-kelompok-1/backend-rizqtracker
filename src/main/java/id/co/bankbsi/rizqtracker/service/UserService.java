@@ -2,6 +2,7 @@ package id.co.bankbsi.rizqtracker.service;
 
 import id.co.bankbsi.rizqtracker.dto.request.LoginRequest;
 import id.co.bankbsi.rizqtracker.dto.request.RegisterRequest;
+import id.co.bankbsi.rizqtracker.dto.request.UserProfileRequest;
 import id.co.bankbsi.rizqtracker.dto.response.UserDetailResponse;
 import id.co.bankbsi.rizqtracker.dto.response.UserRegistrationResponse;
 import id.co.bankbsi.rizqtracker.exception.PasswordMismatchException;
@@ -92,6 +93,46 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found for user with id: " + userId));
 
         return mapToUserDetailResponse(user, account);
+    }
+
+    public UserDetailResponse updateUserDetails(Integer userId, UserProfileRequest req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found for user with id: " + userId));
+
+        boolean userUpdated = false;
+
+//        // Only update email if provided and different from current
+//        if (req.getEmail() != null && !req.getEmail().isEmpty() && !req.getEmail().equals(user.getEmail())) {
+//            // Check if email is already taken by another user
+//            if (userRepository.existsByEmail(req.getEmail())) {
+//                throw new UserAlreadyExistsException("Email already exists");
+//            }
+//            user.setEmail(req.getEmail());
+//            userUpdated = true;
+//        }
+
+        // Only update fullName if provided and different from current
+        if (req.getFullName() != null && !req.getFullName().isEmpty() && !req.getFullName().equals(user.getFullName())) {
+            user.setFullName(req.getFullName());
+            userUpdated = true;
+        }
+
+        // Only update phoneNumber if provided and different from current
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty() && !req.getPhoneNumber().equals(user.getPhoneNumber())) {
+            // Check if phone number is already taken by another user
+            if (userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
+                throw new UserAlreadyExistsException("Phone number already exists");
+            }
+            user.setPhoneNumber(req.getPhoneNumber());
+            userUpdated = true;
+        }
+
+        // Only save if any field was updated
+        User updatedUser = userUpdated ? userRepository.save(user) : user;
+
+        return mapToUserDetailResponse(updatedUser, account);
     }
 
     private UserDetailResponse mapToUserDetailResponse(User user, Account account) {

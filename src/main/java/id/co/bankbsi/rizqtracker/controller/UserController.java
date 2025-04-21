@@ -1,14 +1,14 @@
 package id.co.bankbsi.rizqtracker.controller;
 
+import id.co.bankbsi.rizqtracker.dto.request.UserProfileRequest;
 import id.co.bankbsi.rizqtracker.dto.response.UserDetailResponse;
 import id.co.bankbsi.rizqtracker.service.UserService;
 import id.co.bankbsi.rizqtracker.util.SecurityUtility;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/users")
@@ -25,4 +25,13 @@ public class UserController {
                 .getCurrentUserDetails(this.securityUtility.getCurrentUserId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PatchMapping("/detail")
+    public ResponseEntity<UserDetailResponse> updateUserProfile(@Valid @RequestBody UserProfileRequest req) {
+        System.out.println("updateUserProfile: " + req);
+        UserDetailResponse response = this.userService
+                .updateUserDetails(this.securityUtility.getCurrentUserId(), req);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }
