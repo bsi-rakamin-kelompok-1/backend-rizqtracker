@@ -55,11 +55,6 @@ public class TransactionService {
         return this.transactionRepository.findByTransactionType_NameAndRecipientAccount_User_IdAndCreatedAtBetween(type, userId, startDate, endDate);
     }
 
-//    public List<Transaction> findTransferTransactionsByUserIdAndDateRange(String type, Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
-//        return this.transactionRepository.findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(
-//                TRANSFER, userId, startDate, endDate);
-//    }
-
     @Transactional
     public Transaction createTransfer(TransferRequest req, Integer userId) {
         TransactionType type = this.transactionTypeRepository.findByName(TRANSFER)
@@ -133,6 +128,38 @@ public class TransactionService {
         return savedTransaction;
     }
 
+    public Page<Transaction> searchAndFilterTransactions(
+            Integer userId,
+            String keyword,
+            String transactionType,
+            String transferCategory,
+            String topupMethod,
+            Pageable pageable) {
+
+        // If no search or filter is specified, return all transactions
+        if ((keyword == null || keyword.trim().isEmpty()) &&
+                transactionType == null &&
+                transferCategory == null &&
+                topupMethod == null) {
+            return getAllTransactionsByUserId(userId, pageable);
+        }
+
+        // Use null for empty strings to make the query simpler
+        String searchKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+
+        System.out.printf("Searching transactions with keyword: %s, type: %s, category: %s, method: %s%n",
+                searchKeyword, transactionType, transferCategory, topupMethod);
+
+        return this.transactionRepository.searchAndFilterTransactions(
+                userId,
+                searchKeyword,
+                transactionType,
+                transferCategory,
+                topupMethod,
+                pageable
+        );
+    }
+
     public CashflowIncomeResponse getIncomeCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
         List<Transaction> topupTransactions = findTopupTransactionsByUserIdAndDateRange(TOPUP, userId, startDate, endDate);
 
@@ -174,7 +201,7 @@ public class TransactionService {
     }
 
     public CashflowExpenseResponse getExpenseCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
-        List<Transaction> transferTransactions = transactionRepository.findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(
+        List<Transaction> transferTransactions = this.transactionRepository.findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(
                 TRANSFER, userId, startDate, endDate);
 
         List<CashflowExpenseResponse.TransferData> needs = new ArrayList<>();

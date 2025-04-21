@@ -32,7 +32,11 @@ public class TransactionController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sort_by,
-            @RequestParam(defaultValue = "desc") String sort_type
+            @RequestParam(defaultValue = "desc") String sort_type,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String transaction_type,
+            @RequestParam(required = false) String transfer_category,
+            @RequestParam(required = false) String topup_method
     ) {
         Sort sort = sort_type.equalsIgnoreCase("asc") ?
                 Sort.by(sort_by).ascending() : Sort.by(sort_by).descending();
@@ -40,7 +44,14 @@ public class TransactionController {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         Page<Transaction> transactionsPage = this.transactionService
-                .getAllTransactionsByUserId(this.securityUtility.getCurrentUserId(), pageable);
+                .searchAndFilterTransactions(
+                        this.securityUtility.getCurrentUserId(),
+                        search,
+                        transaction_type,
+                        transfer_category,
+                        topup_method,
+                        pageable
+                );
 
         TransactionResponse response = new TransactionResponse();
         response.setSuccess(true);

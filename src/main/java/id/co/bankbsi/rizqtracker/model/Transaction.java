@@ -50,7 +50,16 @@ public class Transaction {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @UpdateTimestamp
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    /**
+     * Sets the deleted timestamp when the transaction is marked as deleted
+     */
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+        if (Boolean.TRUE.equals(isDeleted)) {
+            this.deletedAt = LocalDateTime.now();
+        }
+    }
 }
