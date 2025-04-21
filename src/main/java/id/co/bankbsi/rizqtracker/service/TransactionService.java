@@ -150,14 +150,13 @@ public class TransactionService {
         System.out.printf("Searching transactions with keyword: %s, type: %s, category: %s, method: %s%n",
                 searchKeyword, transactionType, transferCategory, topupMethod);
 
-        return this.transactionRepository.searchAndFilterTransactions(
+        return this.transactionRepository.findTransactionsWithFilters(
                 userId,
-                searchKeyword,
+                keyword,
                 transactionType,
                 transferCategory,
                 topupMethod,
-                pageable
-        );
+                pageable);
     }
 
     public CashflowIncomeResponse getIncomeCashflow(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
