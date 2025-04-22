@@ -53,21 +53,21 @@ public class AccountService {
 
         // Raw SQL query to find recent transactions based on model structure
         String sql = """
-        SELECT DISTINCT ON (ra.account_number)
-            ra.account_number as account_number,
-            u.full_name as full_name,
-            t.created_at as created_at
-        FROM transaction_histories t
-        JOIN accounts ra ON t.recipient_account = ra.account_number
-        JOIN users u ON ra.user_id = u.id
-        JOIN transaction_types tt ON t.transaction_type_id = tt.id
-        WHERE t.sender_account = :senderAccountNumber
-        AND tt.name = 'transfer'
-        AND t.recipient_account IS NOT NULL
-        AND t.is_deleted = false
-        ORDER BY ra.account_number, t.created_at DESC
-        LIMIT 5
-    """;
+            SELECT DISTINCT ON (ra.account_number)
+                ra.account_number as account_number,
+                u.full_name as full_name,
+                t.created_at as created_at
+            FROM transaction_histories t
+            JOIN accounts ra ON t.recipient_account = ra.account_number
+            JOIN users u ON ra.user_id = u.id
+            JOIN transaction_types tt ON t.transaction_type_id = tt.id
+            WHERE t.sender_account = :senderAccountNumber
+            AND tt.name = 'transfer'
+            AND t.recipient_account IS NOT NULL
+            AND t.is_deleted = false
+            ORDER BY ra.account_number, t.created_at DESC
+            LIMIT 5
+        """;
 
         // Execute native query with sender account number parameter
         List<Object[]> results = entityManager.createNativeQuery(sql)
