@@ -1,6 +1,8 @@
 package id.co.bankbsi.rizqtracker.controller;
 
+import id.co.bankbsi.rizqtracker.dto.request.SetPinRequest;
 import id.co.bankbsi.rizqtracker.dto.request.UserProfileRequest;
+import id.co.bankbsi.rizqtracker.dto.response.BaseResponse;
 import id.co.bankbsi.rizqtracker.dto.response.UserDetailResponse;
 import id.co.bankbsi.rizqtracker.service.UserService;
 import id.co.bankbsi.rizqtracker.util.SecurityUtility;
@@ -19,6 +21,15 @@ public class UserController {
     @Autowired
     private SecurityUtility securityUtility;
 
+    @PostMapping("/set-pin")
+    public ResponseEntity<BaseResponse> setPin(@Valid @RequestBody SetPinRequest request) {
+        BaseResponse response = this.userService.setPin(
+                securityUtility.getCurrentUserId(),
+                request
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @GetMapping("/detail")
     public ResponseEntity<UserDetailResponse> getUserProfile() {
         UserDetailResponse response = this.userService
@@ -28,7 +39,6 @@ public class UserController {
 
     @PatchMapping("/detail")
     public ResponseEntity<UserDetailResponse> updateUserProfile(@Valid @RequestBody UserProfileRequest req) {
-        System.out.println("updateUserProfile: " + req);
         UserDetailResponse response = this.userService
                 .updateUserDetails(this.securityUtility.getCurrentUserId(), req);
         return ResponseEntity.status(HttpStatus.OK).body(response);
