@@ -2,7 +2,9 @@ package id.co.bankbsi.rizqtracker.service;
 
 import id.co.bankbsi.rizqtracker.dto.request.LoginRequest;
 import id.co.bankbsi.rizqtracker.dto.request.RegisterRequest;
+import id.co.bankbsi.rizqtracker.dto.request.SetPinRequest;
 import id.co.bankbsi.rizqtracker.dto.request.UserProfileRequest;
+import id.co.bankbsi.rizqtracker.dto.response.BaseResponse;
 import id.co.bankbsi.rizqtracker.dto.response.UserDetailResponse;
 import id.co.bankbsi.rizqtracker.dto.response.UserRegistrationResponse;
 import id.co.bankbsi.rizqtracker.exception.PasswordMismatchException;
@@ -155,6 +157,25 @@ public class UserService {
         userDetail.setAccount(userAccount);
         response.setData(userDetail);
 
+        return response;
+    }
+
+    @Transactional
+    public BaseResponse setPin(Integer userId, SetPinRequest request) {
+        if (!Objects.equals(request.getPin(), request.getConfirmPin())) {
+            throw new PasswordMismatchException("PIN and confirm PIN do not match");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setPin(passwordEncoder.encode(request.getPin()));
+        user.setIsPinSet(true);
+        userRepository.save(user);
+
+        BaseResponse response = new BaseResponse();
+        response.setSuccess(true);
+        response.setMessage("PIN set successfully");
         return response;
     }
 }

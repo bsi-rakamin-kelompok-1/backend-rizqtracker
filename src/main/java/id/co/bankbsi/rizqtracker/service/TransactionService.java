@@ -7,6 +7,7 @@ import id.co.bankbsi.rizqtracker.dto.response.CashflowExpenseResponse;
 import id.co.bankbsi.rizqtracker.dto.response.CashflowIncomeResponse;
 import id.co.bankbsi.rizqtracker.dto.response.CashflowSummaryResponse;
 import id.co.bankbsi.rizqtracker.exception.InsufficientBalanceException;
+import id.co.bankbsi.rizqtracker.exception.PasswordMismatchException;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.model.*;
 import id.co.bankbsi.rizqtracker.repository.*;
@@ -14,6 +15,7 @@ import id.co.bankbsi.rizqtracker.util.ReferenceNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,9 @@ public class TransactionService {
     private TransactionRepository transactionRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
@@ -42,6 +47,9 @@ public class TransactionService {
 
     @Autowired
     private TopupMethodRepository topupMethodRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public Page<Transaction> getAllTransactionsByUserId(Integer userId, Pageable pageable) {
         return this.transactionRepository.findAllBySenderAccount_User_Id(userId, pageable);
@@ -57,6 +65,8 @@ public class TransactionService {
 
     @Transactional
     public Transaction createTransfer(TransferRequest req, Integer userId) {
+        validateUserPin(userId, req.getPin());
+
         TransactionType type = this.transactionTypeRepository.findByName(TRANSFER)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction type not found"));
 
@@ -100,6 +110,8 @@ public class TransactionService {
 
     @Transactional
     public Transaction createTopup(TopupRequest req, Integer userId) {
+        validateUserPin(userId, req.getPin());
+
         TransactionType type = this.transactionTypeRepository.findByName(TOPUP)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction type not found"));
 
@@ -290,6 +302,27 @@ public class TransactionService {
         response.setSummary(summary);
 
         return response;
+    }
+
+    /**
+     * Validates user's PIN
+     * @param userId The user's ID
+     * @param rawPin The PIN provided in the request
+     * @throws ResourceNotFoundException If user not found
+     * @throws PasswordMismatchException If PIN is not set
+     * @throws PasswordMismatchException If PIN is incorrect
+     */
+    private void validateUserPin(Integer userId, String rawPin) {
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!user.getIsPinSet()) {
+            throw new PasswordMismatchException("PIN not set. Please set your PIN first.");
+        }
+
+        if (!passwordEncoder.matches(rawPin, user.getPin())) {
+            throw new PasswordMismatchException("PIN is incorrect");
+        }
     }
 
     private long calculateCategoryTotal(List<Transaction> transactions, String categoryName) {
