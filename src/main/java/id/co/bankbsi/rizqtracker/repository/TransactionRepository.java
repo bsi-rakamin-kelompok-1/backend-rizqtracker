@@ -1,5 +1,6 @@
 package id.co.bankbsi.rizqtracker.repository;
 
+import id.co.bankbsi.rizqtracker.model.Account;
 import id.co.bankbsi.rizqtracker.model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
 
     List<Transaction> findByTransactionType_NameAndRecipientAccount_User_IdAndCreatedAtBetween(
             String transactionTypeName, Integer userId, LocalDateTime startDate, LocalDateTime endDate);
+
+    List<Transaction> findTop5BySenderAccountAndTransactionType_NameOrderByCreatedAtDesc(
+            Account senderAccount, String transactionTypeName);
 
 //    @Query("SELECT t FROM Transaction t " +
 //            "JOIN t.senderAccount sa " +
