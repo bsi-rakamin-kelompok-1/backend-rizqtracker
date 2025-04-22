@@ -33,6 +33,12 @@ public class User {
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
+    @Column(name = "pin")
+    private String pin;
+
+    @Column(name = "is_pin_set", nullable = false)
+    private Boolean isPinSet = false;
+
     @Column(name = "avatar_url")
     private String avatarUrl;
 
