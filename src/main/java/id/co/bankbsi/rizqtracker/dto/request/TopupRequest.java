@@ -11,7 +11,7 @@ public class TopupRequest {
     @NotBlank(message = "Topup method is required")
     private String topupMethod;
 
-    @Min(value = 1, message = "Amount must be greater than 0")
+    @Min(value = 10000, message = "Minimum topup amount is 10.000")
     private Long amount;
 
     @NotBlank(message = "PIN is required")

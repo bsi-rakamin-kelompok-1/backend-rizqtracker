@@ -15,7 +15,7 @@ public class TransferRequest {
     @NotBlank(message = "Transfer category is required")
     private String transferCategory;
 
-    @Min(value = 1, message = "Amount must be greater than 0")
+    @Min(value = 10000, message = "Minimum transfer amount is 10.000")
     private Long amount;
 
     @NotBlank(message = "PIN is required")
