@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY build/libs/*.jar app.jar
 
-RUN mkdir -p /app/uploads/images
+RUN mkdir -p /app/uploads/images && chmod 777 /app/uploads/images
 
 RUN useradd -m appuser && chown -R appuser:appuser /app
 

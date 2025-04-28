@@ -32,13 +32,27 @@ public class FileStorageService {
         String fileName = UUID.randomUUID().toString() + "." + extension;
 
         try {
+            // Check and create directory if it doesn't exist
+            if (!Files.exists(this.fileStorageLocation)) {
+                try {
+                    Files.createDirectories(this.fileStorageLocation);
+                } catch (IOException e) {
+                    throw new FileStorageException("Failed to create storage directory: " + e.getMessage(), e);
+                }
+            }
+
+            // Verify directory is writable
+            if (!Files.isWritable(this.fileStorageLocation)) {
+                throw new FileStorageException("Storage directory is not writable: " + this.fileStorageLocation.toString());
+            }
+
             // Copy file to target location
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             return fileName;
         } catch (IOException ex) {
-            throw new FileStorageException("Could not store file " + fileName, ex);
+            throw new FileStorageException("Could not store file " + fileName + ". Reason: " + ex.getMessage(), ex);
         }
     }
     
