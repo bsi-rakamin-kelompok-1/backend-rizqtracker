@@ -4,12 +4,9 @@ import id.co.bankbsi.rizqtracker.dto.response.RecentAccountsResponse;
 import id.co.bankbsi.rizqtracker.dto.response.UserAccountResponse;
 import id.co.bankbsi.rizqtracker.exception.ResourceNotFoundException;
 import id.co.bankbsi.rizqtracker.model.Account;
-import id.co.bankbsi.rizqtracker.model.Transaction;
 import id.co.bankbsi.rizqtracker.repository.AccountRepository;
-import id.co.bankbsi.rizqtracker.repository.TransactionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +16,6 @@ import java.util.*;
 public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
-
-    @Autowired
-    private TransactionRepository transactionRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -70,6 +64,7 @@ public class AccountService {
         """;
 
         // Execute native query with sender account number parameter
+        @SuppressWarnings("unchecked")
         List<Object[]> results = entityManager.createNativeQuery(sql)
                 .setParameter("senderAccountNumber", senderAccount.getAccountNumber())
                 .getResultList();
