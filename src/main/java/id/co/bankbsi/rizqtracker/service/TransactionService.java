@@ -52,7 +52,8 @@ public class TransactionService {
     private PasswordEncoder passwordEncoder;
 
     public Page<Transaction> getAllTransactionsByUserId(Integer userId, Pageable pageable) {
-        return this.transactionRepository.findAllBySenderAccount_User_Id(userId, pageable);
+        return this.transactionRepository.findAllBySenderAccount_User_IdOrRecipientAccount_User_Id(
+                userId, userId, pageable);
     }
 
     public List<Transaction> findTopupTransactionsByUserIdAndDateRange(String type, Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
@@ -152,6 +153,8 @@ public class TransactionService {
                 transactionType == null &&
                 transferCategory == null &&
                 topupMethod == null) {
+            System.out.println("Printed here");
+
             return getAllTransactionsByUserId(userId, pageable);
         }
 

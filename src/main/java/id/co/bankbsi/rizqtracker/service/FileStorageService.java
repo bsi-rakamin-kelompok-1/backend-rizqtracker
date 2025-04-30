@@ -20,11 +20,11 @@ public class FileStorageService {
     public FileStorageService(@Value("${file.upload-dir:uploads/images}") String uploadDir) {
         this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
 
-        try {
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (IOException ex) {
-            throw new FileStorageException("Could not create the directory where the uploaded files will be stored", ex);
-        }
+        // try {
+        //     Files.createDirectories(this.fileStorageLocation);
+        // } catch (IOException ex) {
+        //     throw new FileStorageException("Could not create the directory where the uploaded files will be stored", ex);
+        // }
     }
 
     public String storeFile(MultipartFile file, String extension) {
@@ -33,13 +33,13 @@ public class FileStorageService {
 
         try {
             // Check and create directory if it doesn't exist
-            if (!Files.exists(this.fileStorageLocation)) {
-                try {
-                    Files.createDirectories(this.fileStorageLocation);
-                } catch (IOException e) {
-                    throw new FileStorageException("Failed to create storage directory: " + e.getMessage(), e);
-                }
-            }
+            // if (!Files.exists(this.fileStorageLocation)) {
+            //     try {
+            //         Files.createDirectories(this.fileStorageLocation);
+            //     } catch (IOException e) {
+            //         throw new FileStorageException("Failed to create storage directory: " + e.getMessage(), e);
+            //     }
+            // }
 
             // Verify directory is writable
             if (!Files.isWritable(this.fileStorageLocation)) {
