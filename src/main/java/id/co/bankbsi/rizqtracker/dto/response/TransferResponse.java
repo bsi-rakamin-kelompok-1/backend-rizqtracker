@@ -17,6 +17,7 @@ public class TransferResponse extends BaseResponse {
         private String transactionType;
         private Long senderAccountNumber;
         private Long recipientAccountNumber;
+        private String recipientFullName;
         private String transferCategory;
         private Long amount;
         private String notes;
@@ -32,6 +33,7 @@ public class TransferResponse extends BaseResponse {
         data.setTransactionType(transaction.getTransactionType().getName());
         data.setSenderAccountNumber(transaction.getSenderAccount().getAccountNumber());
         data.setRecipientAccountNumber(transaction.getRecipientAccount().getAccountNumber());
+        data.setRecipientFullName(transaction.getRecipientAccount().getUser().getFullName());
         data.setTransferCategory(transaction.getTransferCategory().getName());
         data.setAmount(transaction.getAmount());
         data.setNotes(transaction.getNotes());
