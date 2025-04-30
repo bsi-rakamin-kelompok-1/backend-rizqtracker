@@ -14,7 +14,8 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, String>, TransactionRepositoryCustom {
-    Page<Transaction> findAllBySenderAccount_User_Id(Integer userId, Pageable pageable);
+    Page<Transaction> findAllBySenderAccount_User_IdOrRecipientAccount_User_Id(
+            Integer senderUserId, Integer recipientUserId, Pageable pageable);
 
     List<Transaction> findByTransactionType_NameAndSenderAccount_User_IdAndCreatedAtBetween(
             String transactionTypeName, Integer userId, LocalDateTime startDate, LocalDateTime endDate);
