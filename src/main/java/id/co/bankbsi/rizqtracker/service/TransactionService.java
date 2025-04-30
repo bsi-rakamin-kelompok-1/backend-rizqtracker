@@ -148,7 +148,6 @@ public class TransactionService {
             String topupMethod,
             Pageable pageable) {
 
-        // If no search or filter is specified, return all transactions
         if ((keyword == null || keyword.trim().isEmpty()) &&
                 transactionType == null &&
                 transferCategory == null &&
@@ -156,7 +155,6 @@ public class TransactionService {
             return getAllTransactionsByUserId(userId, pageable);
         }
 
-        // Use null for empty strings to make the query simpler
         String searchKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
 
         System.out.printf("Searching transactions with keyword: %s, type: %s, category: %s, method: %s%n",
