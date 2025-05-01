@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -303,6 +305,21 @@ public class TransactionService {
         response.setSummary(summary);
 
         return response;
+    }
+
+    public List<String> getAvailableTransactionPeriods(Integer userId) {
+        this.accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User account not found"));
+
+        List<Transaction> allTransactions = this.transactionRepository.findAllBySenderAccount_User_IdOrRecipientAccount_User_Id(
+                userId, userId, Pageable.unpaged()).getContent();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        return allTransactions.stream()
+                .map(tx -> YearMonth.from(tx.getCreatedAt()).format(formatter))
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     /**

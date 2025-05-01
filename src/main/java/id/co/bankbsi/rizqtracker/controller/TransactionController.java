@@ -6,17 +6,27 @@ import id.co.bankbsi.rizqtracker.dto.response.TopupResponse;
 import id.co.bankbsi.rizqtracker.dto.response.TransactionResponse;
 import id.co.bankbsi.rizqtracker.dto.response.TransferResponse;
 import id.co.bankbsi.rizqtracker.model.Transaction;
+import id.co.bankbsi.rizqtracker.service.PdfGeneratorService;
 import id.co.bankbsi.rizqtracker.service.TransactionService;
 import id.co.bankbsi.rizqtracker.util.SecurityUtility;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @RestController
 @RequestMapping("/v1/transactions")
@@ -26,6 +36,9 @@ public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
+    
+    @Autowired
+    private PdfGeneratorService pdfGeneratorService;
 
     @GetMapping
     public ResponseEntity<TransactionResponse> getAllTransactions(
@@ -81,4 +94,34 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/generate-pdf")
+    public ResponseEntity<Resource> generateMonthlyPdf(
+            @RequestParam(name = "period", required = true) String periodString) {
+        try {
+            YearMonth period = YearMonth.parse(periodString, DateTimeFormatter.ofPattern("yyyy-MM"));
+            
+            Integer userId = securityUtility.getCurrentUserId();
+            
+            byte[] pdfContent = pdfGeneratorService.generateMonthlyTransactionReport(userId, period);
+            
+            ByteArrayResource resource = new ByteArrayResource(pdfContent);
+            
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, 
+                            "attachment; filename=\"transaction-summary-" + periodString + ".pdf\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(pdfContent.length)
+                    .body(resource);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/available-periods")
+    public ResponseEntity<?> getAvailablePeriods() {
+        Integer userId = securityUtility.getCurrentUserId();
+        return ResponseEntity.ok(transactionService.getAvailableTransactionPeriods(userId));
+    }
 }
