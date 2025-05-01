@@ -1,9 +1,7 @@
 package id.co.bankbsi.rizqtracker.controller;
 
 import id.co.bankbsi.rizqtracker.dto.response.TopupMethodResponse;
-import id.co.bankbsi.rizqtracker.dto.response.TransactionTypeResponse;
 import id.co.bankbsi.rizqtracker.service.TopupMethodService;
-import id.co.bankbsi.rizqtracker.service.TransactionTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

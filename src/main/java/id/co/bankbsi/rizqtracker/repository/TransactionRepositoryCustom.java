@@ -3,7 +3,6 @@ package id.co.bankbsi.rizqtracker.repository;
 import id.co.bankbsi.rizqtracker.model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 
 public interface TransactionRepositoryCustom {
     Page<Transaction> findTransactionsWithFilters(
